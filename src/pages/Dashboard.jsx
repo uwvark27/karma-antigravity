@@ -1,12 +1,12 @@
 import React from 'react';
 import { LayoutGrid, Users, Settings, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useClerk } from '@clerk/clerk-react';
 
 const Dashboard = () => {
-    const navigate = useNavigate();
+    const { signOut } = useClerk();
 
     const handleLogout = () => {
-        navigate('/login');
+        signOut();
     };
 
     return (
