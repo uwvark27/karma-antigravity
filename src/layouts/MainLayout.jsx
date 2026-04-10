@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { ChevronDown } from 'lucide-react';
 
@@ -7,6 +7,7 @@ const MainLayout = () => {
     const { user } = useUser();
     const { signOut } = useClerk();
     const navigate = useNavigate();
+    const location = useLocation();
 
     // State
     const [isSitesOpen, setIsSitesOpen] = useState(false);
@@ -192,11 +193,14 @@ const MainLayout = () => {
                                         <Link to="/karmadb/health" style={{ display: 'block', padding: '12px 16px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'background-color 0.2s' }} onClick={() => setIsKarmaOpen(false)} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--accent-primary)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
                                             Health
                                         </Link>
-                                        <Link to="/karmadb/auto" style={{ display: 'block', padding: '12px 16px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'background-color 0.2s' }} onClick={() => setIsKarmaOpen(false)} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--accent-primary)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                        <Link to="/karmadb/auto/gas" style={{ display: 'block', padding: '12px 16px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'background-color 0.2s' }} onClick={() => setIsKarmaOpen(false)} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--accent-primary)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
                                             Auto
                                         </Link>
                                         <Link to="/karmadb/stats" style={{ display: 'block', padding: '12px 16px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'background-color 0.2s' }} onClick={() => setIsKarmaOpen(false)} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--accent-primary)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
                                             Stats
+                                        </Link>
+                                        <Link to="/karmadb/admin" style={{ display: 'block', padding: '12px 16px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'background-color 0.2s' }} onClick={() => setIsKarmaOpen(false)} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.color = 'var(--accent-primary)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+                                            Admin
                                         </Link>
                                     </div>
                                 )}
@@ -255,6 +259,89 @@ const MainLayout = () => {
                     </button>
                 </div>
             </header>
+
+            {/* Sub-Toolbar (Health & Admin) */}
+            {(() => {
+                let subMenuTabs = [];
+                let isSubMenuVisible = false;
+
+                if (location.pathname.startsWith('/karmadb/health')) {
+                    isSubMenuVisible = true;
+                    subMenuTabs = [
+                        { name: 'Activities', path: '/karmadb/health/activities' },
+                        { name: 'Weight', path: '/karmadb/health/weight' },
+                        { name: 'Personal Care', path: '/karmadb/health/personal-care' },
+                        { name: 'Coitus', path: '/karmadb/health/coitus' },
+                        { name: 'Health Log', path: '/karmadb/health/log' }
+                    ];
+                } else if (location.pathname.startsWith('/karmadb/admin')) {
+                    isSubMenuVisible = true;
+                    subMenuTabs = [
+                        { name: 'Calendars', path: '/karmadb/admin/calendars' },
+                        { name: 'Family Members', path: '/karmadb/admin/family-members' },
+                        { name: 'Place', path: '/karmadb/admin/place' },
+                        { name: 'Architecture', path: '/karmadb/admin/architecture' }
+                    ];
+                } else if (location.pathname.startsWith('/karmadb/auto')) {
+                    isSubMenuVisible = true;
+                    subMenuTabs = [
+                        { name: 'Gas Stats', path: '/karmadb/auto/gas' },
+                        { name: 'Auto Stats', path: '/karmadb/auto/stat' },
+                        { name: 'Auto Logs', path: '/karmadb/auto/log' }
+                    ];
+                }
+
+                return (
+                    <div style={{
+                        overflow: 'hidden',
+                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out',
+                        maxHeight: isSubMenuVisible ? '48px' : '0px',
+                        opacity: isSubMenuVisible ? 1 : 0,
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderBottom: isSubMenuVisible ? '1px solid var(--border-color)' : 'none',
+                        flexShrink: 0,
+                        position: 'sticky',
+                        top: '80px',
+                        zIndex: 40
+                    }}>
+                        <div style={{
+                            height: '48px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '32px'
+                        }}>
+                            {subMenuTabs.map(tab => {
+                                const isActive = location.pathname.startsWith(tab.path);
+                                return (
+                                    <Link
+                                        key={tab.path}
+                                        to={tab.path}
+                                        style={{
+                                            color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                                            fontWeight: isActive ? 600 : 500,
+                                            fontSize: '0.875rem',
+                                            textDecoration: 'none',
+                                            transition: 'color 0.2s',
+                                            padding: '6px 12px',
+                                            borderRadius: '6px',
+                                            backgroundColor: isActive ? 'var(--bg-primary)' : 'transparent'
+                                        }}
+                                        onMouseOver={(e) => {
+                                            if (!isActive) e.currentTarget.style.color = 'var(--text-primary)';
+                                        }}
+                                        onMouseOut={(e) => {
+                                            if (!isActive) e.currentTarget.style.color = 'var(--text-secondary)';
+                                        }}
+                                    >
+                                        {tab.name}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Main Content Area */}
             <main style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
