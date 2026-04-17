@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser, useClerk } from '@clerk/clerk-react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, LogOut } from 'lucide-react';
 
 const MainLayout = () => {
     const { user } = useUser();
@@ -49,6 +49,16 @@ const MainLayout = () => {
             : 'U';
 
     const showImage = user?.hasImage;
+
+    // Sync Clerk avatar to linked Family Member row (runs once on login)
+    useEffect(() => {
+        if (!user?.id) return;
+        fetch('/api/sync-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clerk_user_id: user.id, image_url: user.imageUrl || null }),
+        }).catch(() => {}); // silent — non-critical
+    }, [user?.id]);
 
     return (
         <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
@@ -256,6 +266,16 @@ const MainLayout = () => {
                         ) : (
                             <span>{initials}</span>
                         )}
+                    </button>
+                    
+                    <button 
+                        onClick={handleSignOut}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.2s', padding: '8px', display: 'flex', alignItems: 'center' }}
+                        onMouseOver={(e) => e.currentTarget.style.color = '#ef4444'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                        title="Sign Out"
+                    >
+                        <LogOut size={20} />
                     </button>
                 </div>
             </header>

@@ -6,6 +6,18 @@ export const config = {
 };
 
 export default async function handler(request) {
+    if (request.method === 'GET') {
+        try {
+            const { rows } = await sql`SELECT id, email, role FROM users`;
+            return new Response(JSON.stringify(rows), {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+            });
+        } catch (err) {
+            return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+        }
+    }
+
     if (request.method !== 'POST') {
         return new Response('Method not allowed', { status: 405 });
     }

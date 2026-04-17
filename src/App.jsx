@@ -57,7 +57,7 @@ function App() {
           <Route path="/holiday-photos" element={<HolidayPhotos />} />
           <Route path="/karmadb" element={<KarmaDB />} />
           <Route path="/karmadb/today" element={<KarmaToday />} />
-          <Route path="/karmadb/health" element={<KarmaHealth />} />
+          <Route path="/karmadb/health" element={<Navigate to="/karmadb/health/activities" replace />} />
           <Route path="/karmadb/health/activities" element={<HealthActivities />} />
           <Route path="/karmadb/health/weight" element={<HealthWeight />} />
           <Route path="/karmadb/health/personal-care" element={<HealthPersonalCare />} />

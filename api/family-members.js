@@ -12,6 +12,8 @@ export default async function handler(request) {
             await sql`ALTER TABLE FAMILY_MEMBERS ADD COLUMN IF NOT EXISTS FAMILY_EMAIL VARCHAR(100)`;
             await sql`ALTER TABLE FAMILY_MEMBERS ADD COLUMN IF NOT EXISTS FAMILY_PHONE VARCHAR(50)`;
             await sql`ALTER TABLE FAMILY_MEMBERS ADD COLUMN IF NOT EXISTS FAMILY_WEBSITE VARCHAR(255)`;
+            await sql`ALTER TABLE FAMILY_MEMBERS ADD COLUMN IF NOT EXISTS CLERK_USER_ID VARCHAR(255) UNIQUE`;
+            await sql`ALTER TABLE FAMILY_MEMBERS ADD COLUMN IF NOT EXISTS FAMILY_IMAGE_URL VARCHAR(512)`;
             
             await sql`SELECT setval(pg_get_serial_sequence('FAMILY_MEMBERS', 'family_member_id'), coalesce(max(family_member_id),0) + 1, false) FROM FAMILY_MEMBERS`;
             
@@ -24,13 +26,13 @@ export default async function handler(request) {
 
         if (request.method === 'POST') {
             const body = await request.json();
-            const { first_name, middle_name, last_name, maiden_name, nickname, sex, birthday, deathday, desc, email, phone, website } = body;
+            const { first_name, middle_name, last_name, maiden_name, nickname, sex, birthday, deathday, desc, email, phone, website, clerk_user_id, family_image_url } = body;
 
             await sql`
                 INSERT INTO FAMILY_MEMBERS 
-                (FAMILY_FIRST_NAME, FAMILY_MIDDLE_NAME, FAMILY_LAST_NAME, FAMILY_MAIDEN_NAME, FAMILY_NICKNAME, FAMILY_SEX, FAMILY_BIRTHDAY, FAMILY_DEATHDAY, FAMILY_DESC, FAMILY_EMAIL, FAMILY_PHONE, FAMILY_WEBSITE)
+                (FAMILY_FIRST_NAME, FAMILY_MIDDLE_NAME, FAMILY_LAST_NAME, FAMILY_MAIDEN_NAME, FAMILY_NICKNAME, FAMILY_SEX, FAMILY_BIRTHDAY, FAMILY_DEATHDAY, FAMILY_DESC, FAMILY_EMAIL, FAMILY_PHONE, FAMILY_WEBSITE, CLERK_USER_ID, FAMILY_IMAGE_URL)
                 VALUES 
-                (${first_name}, ${middle_name || null}, ${last_name || null}, ${maiden_name || null}, ${nickname || null}, ${sex}, ${birthday || null}, ${deathday || null}, ${desc || null}, ${email || null}, ${phone || null}, ${website || null})
+                (${first_name}, ${middle_name || null}, ${last_name || null}, ${maiden_name || null}, ${nickname || null}, ${sex}, ${birthday || null}, ${deathday || null}, ${desc || null}, ${email || null}, ${phone || null}, ${website || null}, ${clerk_user_id || null}, ${family_image_url || null})
             `;
             return new Response(JSON.stringify({ success: true }), {
                 status: 201,
@@ -40,7 +42,7 @@ export default async function handler(request) {
 
         if (request.method === 'PUT') {
             const body = await request.json();
-            const { id, first_name, middle_name, last_name, maiden_name, nickname, sex, birthday, deathday, desc, email, phone, website } = body;
+            const { id, first_name, middle_name, last_name, maiden_name, nickname, sex, birthday, deathday, desc, email, phone, website, clerk_user_id, family_image_url } = body;
             await sql`
                 UPDATE FAMILY_MEMBERS 
                 SET 
@@ -55,7 +57,9 @@ export default async function handler(request) {
                     FAMILY_DESC = ${desc || null},
                     FAMILY_EMAIL = ${email || null},
                     FAMILY_PHONE = ${phone || null},
-                    FAMILY_WEBSITE = ${website || null}
+                    FAMILY_WEBSITE = ${website || null},
+                    CLERK_USER_ID = ${clerk_user_id || null},
+                    FAMILY_IMAGE_URL = ${family_image_url || null}
                 WHERE FAMILY_MEMBER_ID = ${id}
             `;
             return new Response(JSON.stringify({ success: true }), {
