@@ -1,7 +1,7 @@
 import { sql } from '@vercel/postgres';
 
 export const config = {
-    runtime: 'edge',
+    runtime: 'nodejs',
 };
 
 // Called on login to sync a Clerk user's avatar into their Family Member record.

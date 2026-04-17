@@ -1,7 +1,7 @@
 import { sql } from '@vercel/postgres';
 
 export const config = {
-    runtime: 'edge', // Using edge prevents max-duration limits for large GPX uploads
+    runtime: 'nodejs', // Using edge prevents max-duration limits for large GPX uploads
 };
 
 export default async function handler(request) {
