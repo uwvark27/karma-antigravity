@@ -2,10 +2,42 @@ import { Webhook } from 'svix';
 import { sql } from '@vercel/postgres';
 
 export const config = {
-    runtime: 'edge',
+    runtime: 'nodejs',
 };
 
 export default async function handler(request) {
+    if (request.method === 'GET') {
+        try {
+            const { rows } = await sql`SELECT id, email, role FROM users`;
+            return new Response(JSON.stringify(rows), {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+            });
+        } catch (err) {
+            return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+        }
+    }
+
+    // PATCH: sync Clerk avatar URL into linked Family Member row (replaces sync-user.js)
+    if (request.method === 'PATCH') {
+        try {
+            const body = await request.json();
+            const { clerk_user_id, image_url } = body;
+            if (!clerk_user_id) return new Response(JSON.stringify({ error: 'Missing clerk_user_id' }), { status: 400 });
+            if (image_url) {
+                await sql`
+                    UPDATE FAMILY_MEMBERS
+                    SET FAMILY_IMAGE_URL = ${image_url}
+                    WHERE CLERK_USER_ID = ${clerk_user_id}
+                      AND (FAMILY_IMAGE_URL IS NULL OR FAMILY_IMAGE_URL = ${image_url})
+                `;
+            }
+            return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'content-type': 'application/json' } });
+        } catch (err) {
+            return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+        }
+    }
+
     if (request.method !== 'POST') {
         return new Response('Method not allowed', { status: 405 });
     }
