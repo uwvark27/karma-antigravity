@@ -53,8 +53,8 @@ const MainLayout = () => {
     // Sync Clerk avatar to linked Family Member row (runs once on login)
     useEffect(() => {
         if (!user?.id) return;
-        fetch('/api/sync-user', {
-            method: 'POST',
+        fetch('/api/users', {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ clerk_user_id: user.id, image_url: user.imageUrl || null }),
         }).catch(() => {}); // silent — non-critical
